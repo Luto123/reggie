@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.common.R;
 import com.example.entity.Category;
-import com.example.entity.Employee;
+
+import java.util.List;
+
 import com.example.service.CategoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,13 +76,32 @@ public class CategoryController {
 
     /**
      * 修改分类信息
+     *
      * @param category 所修改的信息
      * @return
      */
     @PutMapping
-    public R<String> update(@RequestBody Category category){
-        log.info("需要修改菜品分类: "+category);
+    public R<String> update(@RequestBody Category category) {
+        log.info("需要修改菜品分类: " + category);
         categoryService.updateById(category);
         return R.success("修改成功");
+    }
+
+    /**
+     * 根据参数查询数据
+     *
+     * @param category 参数类
+     * @return list
+     */
+    @GetMapping("/list")
+    public R<List<Category>> list(Category category) {
+        log.info("请求根据条件获取数据：{}", category);
+        LambdaQueryWrapper<Category> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        //添加条件
+        lambdaQueryWrapper.eq(category.getType() != null, Category::getType, category.getType());
+        //添加排序
+        lambdaQueryWrapper.orderByAsc(Category::getSort).orderByDesc(Category::getUpdateTime);
+        List<Category> list = categoryService.list(lambdaQueryWrapper);
+        return R.success(list);
     }
 }
