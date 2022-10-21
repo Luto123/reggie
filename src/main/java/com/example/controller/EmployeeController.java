@@ -86,10 +86,10 @@ public class EmployeeController {
         //初始化
         //md5加密
         employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
-        employee.setCreateUser((Long) request.getSession().getAttribute("employee"));
-        employee.setUpdateUser((Long) request.getSession().getAttribute("employee"));
+//        employee.setCreateTime(LocalDateTime.now());
+//        employee.setUpdateTime(LocalDateTime.now());
+//        employee.setCreateUser((Long) request.getSession().getAttribute("employee"));
+//        employee.setUpdateUser((Long) request.getSession().getAttribute("employee"));
         employeeService.save(employee);
         return R.success("新增员工成功");
     }
@@ -128,10 +128,12 @@ public class EmployeeController {
     @PutMapping
     public R<String> update(HttpServletRequest request, @RequestBody Employee employee) {
         log.info("收到需要修改的员工信息: "+employee.toString());
+//        long id = Thread.currentThread().getId();
+//        log.info("当前线程ID："+id);
         //修改更新时间
-        employee.setUpdateTime(LocalDateTime.now());
+//        employee.setUpdateTime(LocalDateTime.now());
         //修改更新人
-        employee.setUpdateUser((Long) request.getSession().getAttribute("employee"));
+//        employee.setUpdateUser((Long) request.getSession().getAttribute("employee"));
         employeeService.updateById(employee);
         return R.success("修改员工信息成功");
     }
