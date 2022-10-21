@@ -20,16 +20,31 @@ import java.sql.SQLIntegrityConstraintViolationException;
 @ResponseBody
 @Slf4j
 public class GlobalExceptionHandler {
-    //处理SQL异常
+    /**
+     * 处理违反mysql唯一性约束的异常
+     * @param ex 异常
+     * @return 错误
+     */
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     public R<String> exceptionHandler(SQLIntegrityConstraintViolationException ex){
         log.error(ex.getMessage());
         if(ex.getMessage().contains("Duplicate entry")){
             //证明是违反了唯一约束
             String[] s = ex.getMessage().split(" ");
-            String msg = "用户名："+s[2]+"已经存在，换一个吧";
+            String msg = "名称："+s[2]+"已经存在，换一个吧";
             return R.error(msg);
         }
-        return R.error("未知错误");
+        return R.error("未知错误(违反唯一性约束)");
+    }
+
+    /**
+     * 处理自定义异常，违反菜品关联性
+     * @param ex 异常
+     * @return 错误
+     */
+    @ExceptionHandler(CustomException.class)
+    public R<String> exceptionHandler(CustomException ex){
+        log.error(ex.getMessage());
+        return R.error(ex.getMessage());
     }
 }
