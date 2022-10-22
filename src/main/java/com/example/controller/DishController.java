@@ -1,6 +1,7 @@
 package com.example.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.common.R;
 import com.example.dto.DishDto;
@@ -15,6 +16,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -63,7 +65,7 @@ public class DishController {
         //条件构造器
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
         //添加过滤条件
-        queryWrapper.like(name != null, Dish::getName, name);
+        queryWrapper.like(name != null, Dish::getName, name).eq(Dish::getIsDeleted,0);
         //添加排序条件
         queryWrapper.orderByDesc(Dish::getUpdateTime);
 
@@ -99,6 +101,7 @@ public class DishController {
     /**
      * 根据ID返回菜品信息，以及口味信息
      * 实现数据回显
+     *
      * @param id
      * @return
      */
@@ -120,5 +123,36 @@ public class DishController {
         log.info("请求修改了一个菜品：" + dishDto);
         dishService.updateWithFlavor(dishDto);
         return R.success("修改成功");
+    }
+
+    /**
+     * 更改菜品停售起售状态
+     *
+     * @param status 目标状态
+     * @param ids    菜品ID
+     * @return 响应
+     */
+    @PostMapping("/status/{status}")
+    public R<String> status(@PathVariable Integer status, Long[] ids) {
+        log.info("发起请求将菜品:{} 更改状态为:{}", ids, status);
+        UpdateWrapper<Dish> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.set("status", status).in("id",ids);
+        dishService.update(updateWrapper);
+        return R.success("更改成功");
+    }
+
+    /**
+     * 删除菜品
+     *
+     * @param ids    菜品ID
+     * @return 响应
+     */
+    @DeleteMapping
+    public R<String> delete(Long[] ids) {
+        log.info("发起请求将菜品:{} 删除", Arrays.toString(ids));
+        UpdateWrapper<Dish> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.set("is_deleted",1).in("id",ids);
+        dishService.update(updateWrapper);
+        return R.success("更改成功");
     }
 }
