@@ -1,6 +1,7 @@
 package com.example.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.common.R;
@@ -12,6 +13,7 @@ import com.example.service.CategoryService;
 import com.example.service.DishFlavorService;
 import com.example.service.DishService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -65,7 +67,7 @@ public class DishController {
         //条件构造器
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
         //添加过滤条件
-        queryWrapper.like(name != null, Dish::getName, name).eq(Dish::getIsDeleted,0);
+        queryWrapper.like(name != null, Dish::getName, name).eq(Dish::getIsDeleted, 0);
         //添加排序条件
         queryWrapper.orderByDesc(Dish::getUpdateTime);
 
@@ -136,7 +138,7 @@ public class DishController {
     public R<String> status(@PathVariable Integer status, Long[] ids) {
         log.info("发起请求将菜品:{} 更改状态为:{}", ids, status);
         UpdateWrapper<Dish> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.set("status", status).in("id",ids);
+        updateWrapper.set("status", status).in("id", ids);
         dishService.update(updateWrapper);
         return R.success("更改成功");
     }
@@ -144,15 +146,34 @@ public class DishController {
     /**
      * 删除菜品
      *
-     * @param ids    菜品ID
+     * @param ids 菜品ID
      * @return 响应
      */
     @DeleteMapping
     public R<String> delete(Long[] ids) {
         log.info("发起请求将菜品:{} 删除", Arrays.toString(ids));
         UpdateWrapper<Dish> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.set("is_deleted",1).in("id",ids);
+        updateWrapper.set("is_deleted", 1).in("id", ids);
         dishService.update(updateWrapper);
         return R.success("更改成功");
+    }
+
+
+    /**
+     * 获取所有菜品
+     *
+     * @param dish 包含条件的dish
+     * @return 响应
+     */
+    @GetMapping("/list")
+    public R<List<Dish>> list(Dish dish) {
+        log.info("发起查询菜品："+dish);
+        //构造查询条件
+        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(dish.getCategoryId() != null, Dish::getCategoryId, dish.getCategoryId());
+        //添加排序条件
+        queryWrapper.orderByAsc(Dish::getSort).orderByDesc(Dish::getUpdateTime).eq(Dish::getStatus,1);
+        List<Dish> list = dishService.list(queryWrapper);
+        return R.success(list);
     }
 }
