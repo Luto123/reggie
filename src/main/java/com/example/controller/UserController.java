@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.Map;
 
@@ -42,8 +43,8 @@ public class UserController {
         if (phone != null) {
             //生成验证码
             // TODO: 2022/10/23 更改登录时的默认参数
-//            String code = ValidateCodeUtils.generateValidateCode(4).toString();
-                String code = "6666";
+            String code = ValidateCodeUtils.generateValidateCode(4).toString();
+//                String code = "6666";
             log.info("为用户 {} 生成的验证码是:{}", phone, code);
             //将短信验证码放在session中
             session.setAttribute(phone, code);
@@ -90,6 +91,12 @@ public class UserController {
         }
         //不成功
         return R.error("登陆失败");
+    }
+
+    @PostMapping("/loginout")
+    public R<String> logout(HttpServletRequest request){
+        request.removeAttribute("user");
+        return R.success("退出成功");
     }
 }
 
