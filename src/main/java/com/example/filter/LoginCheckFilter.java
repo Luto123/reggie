@@ -34,7 +34,9 @@ public class LoginCheckFilter implements Filter {
                 "/employee/logout",
                 "/backend/**",
                 "/front/**",
-                "/common/**"
+                "/common/**",
+                "/user/sendMsg",
+                "/user/login/**"
         };
         //获取请求的URI
         String uri = request.getRequestURI();
@@ -54,6 +56,16 @@ public class LoginCheckFilter implements Filter {
             log.info("用户已经登陆：ID = {}", request.getSession().getAttribute("employee"));
 
             BaseContext.setCurrentId(id);
+            //放行
+            filterChain.doFilter(request, response);
+            return;
+        }
+        else if (request.getSession().getAttribute("user") != null) {
+            //已经登陆
+            Long userId = (Long) request.getSession().getAttribute("user");
+            log.info("用户已经登陆：ID = {}", request.getSession().getAttribute("user"));
+
+            BaseContext.setCurrentId(userId);
             //放行
             filterChain.doFilter(request, response);
             return;

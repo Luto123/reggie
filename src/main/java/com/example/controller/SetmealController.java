@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.common.R;
 import com.example.dto.SetmealDto;
 import com.example.entity.Category;
+import com.example.entity.Dish;
 import com.example.entity.Setmeal;
 import com.example.entity.SetmealDish;
 import com.example.service.CategoryService;
@@ -153,8 +154,24 @@ public class SetmealController {
     public R<String> updateStatus(@PathVariable Integer status, Long[] ids) {
         log.info("请求将id为{} 的套餐状态更改为{}", ids, status);
         UpdateWrapper<Setmeal> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.set("status",status).in("id",ids);
+        updateWrapper.set("status", status).in("id", ids);
         setmealService.update(updateWrapper);
         return R.success("更改状态成功");
+    }
+
+    /**
+     * 获取列表信息
+     *
+     * @param categoryId 分类ID
+     * @param status     是套餐还是菜品
+     * @return
+     */
+    @GetMapping("/list")
+    public R<List<Setmeal>> list(Long categoryId, int status) {
+        log.info("请求分类为{}的{}", categoryId, status);
+        QueryWrapper<Setmeal> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("category_id", categoryId).eq("status", status);
+        List<Setmeal> list = setmealService.list(queryWrapper);
+        return R.success(list);
     }
 }
