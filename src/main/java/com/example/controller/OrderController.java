@@ -157,13 +157,8 @@ public class OrderController {
                 //是套餐
                 shoppingCart.setSetmealId(orderDetail.getSetmealId());
             }
-//            shoppingCart.setName(orderDetail.getName());
-//            shoppingCart.setImage(orderDetail.getImage());
-//            shoppingCart.setUserId(currentId);
-//            shoppingCart.setNumber(orderDetail.getNumber());
-//            shoppingCart.setAmount(order.getAmount());
-//            shoppingCart.setCreateTime(LocalDateTime.now());
             BeanUtils.copyProperties(orderDetail, shoppingCart);
+            shoppingCart.setNumber(orderDetail.getNumber());
             shoppingCart.setUserId(currentId);
             shoppingCart.setAmount(order.getAmount());
             shoppingCartService.add(currentId, shoppingCart);
@@ -218,12 +213,12 @@ public class OrderController {
         orders.setUserName(user.getName());
         double countAmount = 0;
         for (ShoppingCart shoppingCart : shoppingCartList) {
-            countAmount += shoppingCart.getAmount().doubleValue();
+            countAmount += shoppingCart.getAmount().doubleValue()*shoppingCart.getNumber();
         }
         orders.setAmount(BigDecimal.valueOf(countAmount));
         //初始化orderDetail
         orderService.save(orders);
-        int num = new Random().nextInt()%100000;
+        int num = Math.abs(new Random().nextInt()%100000);
         orders.setNumber(String.valueOf(num));
         orderService.updateById(orders);
         for (ShoppingCart shoppingCart : shoppingCartList) {
