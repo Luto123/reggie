@@ -5,19 +5,18 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.common.R;
+import com.example.dto.DishDto;
 import com.example.dto.SetmealDto;
-import com.example.entity.Category;
-import com.example.entity.Dish;
-import com.example.entity.Setmeal;
-import com.example.entity.SetmealDish;
-import com.example.service.CategoryService;
-import com.example.service.SetmealDishService;
-import com.example.service.SetmealService;
+import com.example.entity.*;
+import com.example.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,6 +38,12 @@ public class SetmealController {
     private SetmealService setmealService;
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private DishService dishService;
+
+    @Autowired
+    private DishFlavorService dishFlavorService;
 
     /**
      * 新增套餐
@@ -174,4 +179,30 @@ public class SetmealController {
         List<Setmeal> list = setmealService.list(queryWrapper);
         return R.success(list);
     }
+
+    /**
+     * 通过点击图片返回图片信息
+     *
+     * @param id 菜品ID
+     * @return
+     */
+    @GetMapping("/dish/{id}")
+    public R<List<DishDto>> dish(@PathVariable String id) {
+        List<DishDto> list = new ArrayList<>();
+        DishDto dishDto = new DishDto();
+        Dish dish = dishService.getById(id);
+        Setmeal setmeal = setmealService.getById(id);
+        dishDto.setCopies(1);
+        if (dish != null) {
+            BeanUtils.copyProperties(dish, dishDto);
+        } else {
+            BeanUtils.copyProperties(setmeal,dishDto);
+        }
+
+        log.info("请求获取一条菜品{}", dish);
+        log.info("请求获取一条套餐{}", setmeal);
+        list.add(dishDto);
+        return R.success(list);
+    }
+
 }
