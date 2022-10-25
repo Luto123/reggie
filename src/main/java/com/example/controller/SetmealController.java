@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -52,6 +54,7 @@ public class SetmealController {
      * @return 响应
      */
     @PostMapping
+    @CacheEvict(value = "setmealCache",allEntries = true)//清除所有套餐数据
     public R<String> save(@RequestBody SetmealDto setmealDto) {
         log.info("请求保存新的套餐信息:" + setmealDto);
         setmealService.saveWithDish(setmealDto);
@@ -97,6 +100,7 @@ public class SetmealController {
      * @return 响应
      */
     @DeleteMapping
+    @CacheEvict(value = "setmealCache",allEntries = true)//清除所有套餐数据
     public R<String> delete(Long[] ids) {
         log.info("请求尝试删除套餐：{}", Arrays.toString(ids));
         UpdateWrapper<Setmeal> updateWrapper = new UpdateWrapper<>();
@@ -172,10 +176,11 @@ public class SetmealController {
      * @return
      */
     @GetMapping("/list")
+    @Cacheable(value = "setmealCache",key = "#categoryId+'_'+#status")//载入缓存
     public R<List<Setmeal>> list(Long categoryId, int status) {
         log.info("请求分类为{}的{}", categoryId, status);
         QueryWrapper<Setmeal> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("category_id", categoryId).eq("status", status);
+        queryWrapper.eq("category_id", categoryId).eq("status", status).eq("is_deleted",0);
         List<Setmeal> list = setmealService.list(queryWrapper);
         return R.success(list);
     }

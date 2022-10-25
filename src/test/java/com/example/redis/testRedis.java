@@ -28,7 +28,7 @@ public class testRedis {
     @Test
     public void test(){
         ValueOperations<Object, Object> opsForValue = redisTemplate.opsForValue();
-        opsForValue.set("name","杨钦");
+        opsForValue.set("name","qin");
         String name = (String) opsForValue.get("name");
         System.out.println(name);
         redisTemplate.delete("name");

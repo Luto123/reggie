@@ -25,6 +25,9 @@ spring:
       pool:
         max-active: 8
         max-wait: 1ms
+  cache:
+    redis:
+      time-to-live: 1800000 # 过期时间
 
 
 mybatis-plus:
